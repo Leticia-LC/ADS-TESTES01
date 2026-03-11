@@ -20,24 +20,26 @@ describe("authenticateUser", () => {
       email: "aluno@authtask.dev",
       name: "Aluno Demo",
     });
+
+    expect(user.id).toBe("aluno_demo");
   });
 
-  it("lança AppError quando email é inválido", async () => {
+  it("lança AppError 401 quando email é inválido", async () => {
     await expect(
       authenticateUser({
         email: "errado@test.com",
         password: "123456",
       })
-    ).rejects.toThrow(AppError);
+    ).rejects.toBeInstanceOf(AppError);
   });
 
-  it("lança AppError quando senha é inválida", async () => {
+  it("lança AppError 401 quando senha é inválida", async () => {
     await expect(
       authenticateUser({
         email: "aluno@authtask.dev",
         password: "errada",
       })
-    ).rejects.toThrow(AppError);
+    ).rejects.toBeInstanceOf(AppError);
   });
 
 });
