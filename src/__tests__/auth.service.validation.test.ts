@@ -1,3 +1,5 @@
+import { hasValidationErrors, validateLoginPayload } from "@/services/auth/auth.service";
+
 describe("auth validation", () => {
 
   it("deve retornar erro quando email estiver vazio", () => {
