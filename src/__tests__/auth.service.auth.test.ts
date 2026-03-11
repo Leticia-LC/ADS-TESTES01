@@ -1,3 +1,6 @@
+import { authenticateUser, sanitizeUserId } from "@/services/auth/auth.service";
+import { AppError } from "@/utils/app-error";
+
 describe("authenticateUser", () => {
 
   beforeEach(() => {
