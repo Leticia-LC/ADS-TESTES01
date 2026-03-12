@@ -20,7 +20,7 @@ describe("DashboardClient", () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    // Mock global.fetch
+    // Mock padrão de fetch
     global.fetch = jest.fn(() =>
       Promise.resolve({
         ok: true,
@@ -35,36 +35,36 @@ describe("DashboardClient", () => {
     expect(screen.getByText(/Painel de Tarefas/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /logout/i })).toBeInTheDocument();
 
-    // Espera o fetch terminar
     await waitFor(() =>
       expect(screen.queryByText(/Carregando tarefas/i)).not.toBeInTheDocument()
     );
   });
 
-  it("mostra loading no início", async () => {
+  it("trata erro 500 da API usando jest.spyOn", async () => {
+    const fetchSpy = jest.spyOn(global, "fetch").mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({ message: "Erro interno" }),
+    } as Response);
+
     render(<DashboardClient />);
 
-    // isLoading inicial é true
-    expect(screen.getByText(/Carregando tarefas/i)).toBeInTheDocument();
-
-    // Espera o fetch terminar
     await waitFor(() =>
-      expect(screen.queryByText(/Carregando tarefas/i)).not.toBeInTheDocument()
+      expect(screen.getByText(/Erro interno/i)).toBeInTheDocument()
     );
+
+    fetchSpy.mockRestore();
   });
 
-  it("mostra erro se fetch falhar", async () => {
-    (global.fetch as jest.Mock).mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: false,
-        json: () => Promise.resolve({ message: "Erro de teste" }),
-      })
+  it("trata timeout na requisição usando jest.spyOn + mockImplementation", async () => {
+    jest.spyOn(global, "fetch").mockImplementation(
+      () => new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 50))
     );
 
     render(<DashboardClient />);
 
     await waitFor(() =>
-      expect(screen.getByText(/Erro de teste/i)).toBeInTheDocument()
+      expect(screen.getByText(/Timeout/i)).toBeInTheDocument()
     );
   });
 });
