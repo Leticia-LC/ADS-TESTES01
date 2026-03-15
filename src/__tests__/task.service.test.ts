@@ -78,6 +78,26 @@ describe("taskService", () => {
     );
   });
 
+  it("toggleTaskCompletion chama repository.updateCompletion", async () => {
+    mockRepository.updateCompletion.mockResolvedValue({
+      id: "1",
+      title: "Task",
+      completed: true,
+    });
+
+    await service.toggleTaskCompletion({
+      userId: "user1",
+      taskId: "task1",
+      completed: true,
+    });
+
+    expect(mockRepository.updateCompletion).toHaveBeenCalledWith(
+      "user1",
+      "task1",
+      true
+    );
+  });
+
   it("lança erro quando userId é vazio", async () => {
     await expect(service.listTasks("")).rejects.toThrow(AppError);
   });
