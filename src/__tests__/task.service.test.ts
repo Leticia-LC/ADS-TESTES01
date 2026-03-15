@@ -102,4 +102,54 @@ describe("taskService", () => {
     await expect(service.listTasks("")).rejects.toThrow(AppError);
   });
 
+  describe("multi-user simulation", () => {
+    it("handles concurrent operations from multiple users", async () => {
+      // Setup different users with their tasks
+      const user1Tasks = [
+        { id: "1", title: "User1 Task 1", completed: false },
+        { id: "2", title: "User1 Task 2", completed: true },
+      ];
+      const user2Tasks = [
+        { id: "3", title: "User2 Task 1", completed: false },
+      ];
+
+      // Mock repository to return different data based on userId
+      mockRepository.listByUser.mockImplementation((userId: string) => {
+        if (userId === "user1") return Promise.resolve(user1Tasks);
+        if (userId === "user2") return Promise.resolve(user2Tasks);
+        return Promise.resolve([]);
+      });
+
+      mockRepository.createForUser.mockImplementation((userId: string, title: string) => {
+        const newTask = {
+          id: `new-${userId}`,
+          title,
+          completed: false,
+        };
+        return Promise.resolve(newTask);
+      });
+
+      // Simulate concurrent operations
+      const operations = [
+        service.listTasks("user1"),
+        service.listTasks("user2"),
+        service.createTask({ userId: "user1", title: "New User1 Task" }),
+        service.createTask({ userId: "user2", title: "New User2 Task" }),
+      ];
+
+      const results = await Promise.all(operations);
+
+      // Verify user isolation
+      expect(results[0]).toEqual(user1Tasks); // user1 tasks
+      expect(results[1]).toEqual(user2Tasks); // user2 tasks
+      expect(results[2]).toEqual({ id: "new-user1", title: "New User1 Task", completed: false });
+      expect(results[3]).toEqual({ id: "new-user2", title: "New User2 Task", completed: false });
+
+      // Verify repository calls
+      expect(mockRepository.listByUser).toHaveBeenCalledWith("user1");
+      expect(mockRepository.listByUser).toHaveBeenCalledWith("user2");
+      expect(mockRepository.createForUser).toHaveBeenCalledWith("user1", "New User1 Task");
+      expect(mockRepository.createForUser).toHaveBeenCalledWith("user2", "New User2 Task");
+    });
+  });
 });

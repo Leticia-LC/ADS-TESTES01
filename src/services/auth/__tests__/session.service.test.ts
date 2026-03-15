@@ -61,4 +61,17 @@ describe("session.service", () => {
     mockGet.mockReturnValue(undefined);
     await expect(requireSessionUserFromCookies()).rejects.toThrow("Sessão inválida ou expirada.");
   });
+
+  it("expires token after TTL with fake timers", () => {
+    jest.useFakeTimers();
+    const user = { id: "1", name: "Test", email: "test@test.com" };
+    const token = createSessionToken(user);
+
+    jest.advanceTimersByTime(8 * 60 * 60 * 1000 + 1000);
+
+    const payload = verifySessionToken(token);
+    expect(payload).toBeNull();
+
+    jest.useRealTimers();
+  });
 });

@@ -28,11 +28,16 @@ describe("LoginForm", () => {
   });
 
   it("renders the form", () => {
-    render(<LoginForm />);
+    const { container } = render(<LoginForm />);
 
     expect(screen.getByLabelText(/e-mail/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/senha/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /entrar/i })).toBeInTheDocument();
+
+    // Snapshot test justificado: O LoginForm tem UI estável com campos fixos de email/senha
+    // e botão de submit. Mudanças no snapshot indicam alterações visuais não intencionais
+    // que devem ser revisadas para manter consistência da experiência do usuário.
+    expect(container.firstChild).toMatchSnapshot();
   });
 
   it("submits the form with valid data", async () => {
