@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoginForm renders the form 1`] = `
+<div
+  class="card"
+>
+  <h1>
+    Entrar no AuthTask Manager
+  </h1>
+  <p
+    class="hint"
+  >
+    Login de demonstração para foco em arquitetura e testes.
+  </p>
+  <form
+    class="stack-md"
+  >
+    <label
+      class="field"
+    >
+      <span>
+        E-mail
+      </span>
+      <input
+        aria-invalid="false"
+        autocomplete="email"
+        name="email"
+        type="email"
+        value="aluno@authtask.dev"
+      />
+    </label>
+    <label
+      class="field"
+    >
+      <span>
+        Senha
+      </span>
+      <input
+        aria-invalid="false"
+        autocomplete="current-password"
+        name="password"
+        type="password"
+        value="123456"
+      />
+    </label>
+    <button
+      type="submit"
+    >
+      Entrar
+    </button>
+  </form>
+  <p
+    class="hint"
+  >
+    Credenciais padrão: 
+    <strong>
+      aluno@authtask.dev
+    </strong>
+     / 
+    <strong>
+      123456
+    </strong>
+  </p>
+</div>
+`;
