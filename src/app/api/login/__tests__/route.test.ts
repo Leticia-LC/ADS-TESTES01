@@ -65,8 +65,13 @@ describe("POST /api/login", () => {
     mockNextResponse.json.mockReturnValue({
       cookies: {
         set: jest.fn(),
+        get: jest.fn(),
+        getAll: jest.fn(),
+        has: jest.fn(),
+        delete: jest.fn(),
       },
-    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
     mockGetSessionCookieOptions.mockReturnValue(mockCookieOptions);
   });
 
