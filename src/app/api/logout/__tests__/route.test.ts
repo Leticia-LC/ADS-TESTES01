@@ -12,14 +12,12 @@ jest.mock("next/server", () => ({
   },
 }));
 
-const mockGetSessionCookieOptions = require("@/services/auth/session.service").getSessionCookieOptions;
-const mockNextResponse = require("next/server").NextResponse;
+// Import mocks after jest.mock
+import { getSessionCookieOptions } from "@/services/auth/session.service";
+import { NextResponse } from "next/server";
 
-function createRequest(): Request {
-  return new Request("http://localhost/api/logout", {
-    method: "POST",
-  });
-}
+const mockGetSessionCookieOptions = getSessionCookieOptions as jest.MockedFunction<typeof getSessionCookieOptions>;
+const mockNextResponse = NextResponse as jest.Mocked<typeof NextResponse>;
 
 describe("POST /api/logout", () => {
   const mockCookieOptions = {
@@ -45,6 +43,7 @@ describe("POST /api/logout", () => {
   });
 
   it("retorna 200 com mensagem de sucesso e cookie expirado", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await POST();
 
     expect(mockGetSessionCookieOptions).toHaveBeenCalledWith({ maxAge: 0 });

@@ -20,9 +20,14 @@ jest.mock("next/server", () => ({
   },
 }));
 
-const mockRequireSessionUserFromCookies = require("@/services/auth/session.service").requireSessionUserFromCookies;
-const mockTaskService = require("@/services/tasks/task.service").taskService;
-const mockNextResponse = require("next/server").NextResponse;
+// Import mocks after jest.mock
+import { requireSessionUserFromCookies } from "@/services/auth/session.service";
+import { taskService } from "@/services/tasks/task.service";
+import { NextResponse } from "next/server";
+
+const mockRequireSessionUserFromCookies = requireSessionUserFromCookies as jest.MockedFunction<typeof requireSessionUserFromCookies>;
+const mockTaskService = taskService as jest.Mocked<typeof taskService>;
+const mockNextResponse = NextResponse as jest.Mocked<typeof NextResponse>;
 
 function createPostRequest(body: object): Request {
   return new Request("http://localhost/api/tasks", {
@@ -64,6 +69,7 @@ describe("GET /api/tasks", () => {
     mockRequireSessionUserFromCookies.mockResolvedValue(mockUser);
     mockTaskService.listTasks.mockResolvedValue(mockTasks);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await GET();
 
     expect(mockRequireSessionUserFromCookies).toHaveBeenCalledTimes(1);
@@ -79,6 +85,7 @@ describe("GET /api/tasks", () => {
       new AppError("UNAUTHORIZED", "Sessão inválida ou expirada.", 401)
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await GET();
 
     expect(mockRequireSessionUserFromCookies).toHaveBeenCalledTimes(1);
@@ -95,6 +102,7 @@ describe("GET /api/tasks", () => {
     mockRequireSessionUserFromCookies.mockResolvedValue(mockUser);
     mockTaskService.listTasks.mockRejectedValue(new Error("Database error"));
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await GET();
 
     expect(mockRequireSessionUserFromCookies).toHaveBeenCalledTimes(1);
@@ -132,6 +140,7 @@ describe("POST /api/tasks", () => {
     mockRequireSessionUserFromCookies.mockResolvedValue(mockUser);
     mockTaskService.createTask.mockResolvedValue(mockTask);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await POST(
       createPostRequest({
         title: "New Task",
@@ -153,6 +162,7 @@ describe("POST /api/tasks", () => {
     mockRequireSessionUserFromCookies.mockResolvedValue(mockUser);
     mockTaskService.createTask.mockResolvedValue(mockTask);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await POST(createPostRequest({}));
 
     expect(mockTaskService.createTask).toHaveBeenCalledWith({
@@ -166,6 +176,7 @@ describe("POST /api/tasks", () => {
       new AppError("UNAUTHORIZED", "Sessão inválida ou expirada.", 401)
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await POST(
       createPostRequest({
         title: "New Task",
@@ -188,6 +199,7 @@ describe("POST /api/tasks", () => {
       new AppError("INVALID_TASK_TITLE", "Título da tarefa é obrigatório.", 400)
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await POST(
       createPostRequest({
         title: "",
@@ -212,6 +224,7 @@ describe("POST /api/tasks", () => {
     mockRequireSessionUserFromCookies.mockResolvedValue(mockUser);
     mockTaskService.createTask.mockRejectedValue(new Error("Database error"));
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await POST(
       createPostRequest({
         title: "New Task",

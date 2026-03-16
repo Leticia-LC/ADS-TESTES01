@@ -2,8 +2,13 @@ import { render, screen } from "@testing-library/react";
 import { AppProviders } from "../AppProviders";
 
 // Mock das dependências
+type AuthProviderProps = {
+  children: React.ReactNode;
+  initialUser: unknown;
+};
+
 jest.mock("@/context/AuthContext", () => ({
-  AuthProvider: ({ children, initialUser }: any) => (
+  AuthProvider: ({ children, initialUser }: AuthProviderProps) => (
     <div data-testid="auth-provider" data-initial-user={JSON.stringify(initialUser)}>
       {children}
     </div>

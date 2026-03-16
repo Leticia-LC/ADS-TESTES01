@@ -1,11 +1,16 @@
 import { render, screen } from "@testing-library/react";
-import Link from "next/link";
 
 // Mock do Next.js Link
+type LinkProps = {
+  children: React.ReactNode;
+  href: string;
+  className?: string;
+};
+
 jest.mock("next/link", () => {
   return {
     __esModule: true,
-    default: ({ children, href, className }: any) => (
+    default: ({ children, href, className }: LinkProps) => (
       <a href={href} className={className} data-testid={`link-${href.replace("/", "")}`}>
         {children}
       </a>

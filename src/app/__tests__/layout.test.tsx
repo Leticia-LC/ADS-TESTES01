@@ -1,19 +1,25 @@
-import { render } from "@testing-library/react";
-
 // Mock das dependências
 jest.mock("@/services/auth/session.service", () => ({
   getSessionUserFromCookies: jest.fn(),
 }));
 
+type AppProvidersProps = {
+  children: React.ReactNode;
+  initialUser: unknown;
+};
+
 jest.mock("@/components/providers/AppProviders", () => ({
-  AppProviders: ({ children, initialUser }: any) => (
+  AppProviders: ({ children, initialUser }: AppProvidersProps) => (
     <div data-testid="app-providers" data-initial-user={JSON.stringify(initialUser)}>
       {children}
     </div>
   ),
 }));
 
-const mockGetSessionUserFromCookies = require("@/services/auth/session.service").getSessionUserFromCookies;
+// Import mocks after jest.mock
+import { getSessionUserFromCookies } from "@/services/auth/session.service";
+
+const mockGetSessionUserFromCookies = getSessionUserFromCookies as jest.MockedFunction<typeof getSessionUserFromCookies>;
 
 describe("RootLayout", () => {
   const mockUser = {

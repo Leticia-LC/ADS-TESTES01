@@ -20,12 +20,17 @@ jest.mock("next/server", () => ({
   },
 }));
 
-const mockAuthenticateUser = require("@/services/auth/auth.service").authenticateUser;
-const mockHasValidationErrors = require("@/services/auth/auth.service").hasValidationErrors;
-const mockValidateLoginPayload = require("@/services/auth/auth.service").validateLoginPayload;
-const mockCreateSessionToken = require("@/services/auth/session.service").createSessionToken;
-const mockGetSessionCookieOptions = require("@/services/auth/session.service").getSessionCookieOptions;
-const mockNextResponse = require("next/server").NextResponse;
+// Import mocks after jest.mock
+import { authenticateUser, hasValidationErrors, validateLoginPayload } from "@/services/auth/auth.service";
+import { createSessionToken, getSessionCookieOptions } from "@/services/auth/session.service";
+import { NextResponse } from "next/server";
+
+const mockAuthenticateUser = authenticateUser as jest.MockedFunction<typeof authenticateUser>;
+const mockHasValidationErrors = hasValidationErrors as jest.MockedFunction<typeof hasValidationErrors>;
+const mockValidateLoginPayload = validateLoginPayload as jest.MockedFunction<typeof validateLoginPayload>;
+const mockCreateSessionToken = createSessionToken as jest.MockedFunction<typeof createSessionToken>;
+const mockGetSessionCookieOptions = getSessionCookieOptions as jest.MockedFunction<typeof getSessionCookieOptions>;
+const mockNextResponse = NextResponse as jest.Mocked<typeof NextResponse>;
 
 function createRequest(body: object): Request {
   return new Request("http://localhost/api/login", {
@@ -71,6 +76,7 @@ describe("POST /api/login", () => {
     mockAuthenticateUser.mockResolvedValue(mockUser);
     mockCreateSessionToken.mockReturnValue(mockToken);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await POST(
       createRequest({
         email: "aluno@authtask.dev",
@@ -103,6 +109,7 @@ describe("POST /api/login", () => {
     mockValidateLoginPayload.mockReturnValue(validationErrors);
     mockHasValidationErrors.mockReturnValue(true);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await POST(createRequest({ email: "" }));
 
     expect(mockValidateLoginPayload).toHaveBeenCalledWith({ email: "" });
@@ -124,6 +131,7 @@ describe("POST /api/login", () => {
       new AppError("INVALID_CREDENTIALS", "Credenciais inválidas. Verifique e-mail e senha.", 401)
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await POST(
       createRequest({
         email: "wrong@test.com",
@@ -149,6 +157,7 @@ describe("POST /api/login", () => {
     mockHasValidationErrors.mockReturnValue(false);
     mockAuthenticateUser.mockRejectedValue(new Error("Erro inesperado"));
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await POST(
       createRequest({
         email: "aluno@authtask.dev",

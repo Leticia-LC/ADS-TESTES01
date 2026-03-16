@@ -23,7 +23,11 @@ jest.mock("@/components/dashboard/ServerTaskSummary", () => ({
 }));
 
 const mockRedirect = redirect as jest.MockedFunction<typeof redirect>;
-const mockGetSessionUserFromCookies = require("@/services/auth/session.service").getSessionUserFromCookies;
+
+// Import mocks after jest.mock
+import { getSessionUserFromCookies } from "@/services/auth/session.service";
+
+const mockGetSessionUserFromCookies = getSessionUserFromCookies as jest.MockedFunction<typeof getSessionUserFromCookies>;
 
 describe("DashboardPage", () => {
   const mockUser = {
