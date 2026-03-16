@@ -15,15 +15,14 @@ const config: Config = {
     "!src/**/*.d.ts",
     "!src/**/__tests__/**",
   ],
-  // Descomente na Etapa 10 do GUIA_EVOLUTIVO.md para exigir cobertura mínima
-  // coverageThreshold: {
-  //   global: {
-  //     statements: 85,
-  //     branches: 80,
-  //     functions: 85,
-  //     lines: 85,
-  //   },
-  // },
+  coverageThreshold: {
+    global: {
+      statements: 85,
+      branches: 80,
+      functions: 85,
+      lines: 85,
+    },
+  },
 };
 
 export default createJestConfig(config);

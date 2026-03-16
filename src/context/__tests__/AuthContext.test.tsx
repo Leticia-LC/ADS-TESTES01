@@ -12,11 +12,12 @@ jest.mock("next/navigation", () => ({
 
 // Componente de teste que consome o AuthContext
 function TestConsumer() {
-  const { user, login } = useAuth();
+  const { user, login, logout } = useAuth();
   return (
     <div>
       <span data-testid="user-email">{user?.email ?? "null"}</span>
       <button onClick={() => login("a@b.com", "123456")}>Login</button>
+      <button onClick={logout}>Logout</button>
     </div>
   );
 }
@@ -87,6 +88,64 @@ describe("AuthContext", () => {
     await waitFor(() => {
       expect(screen.getByTestId("user-email")).toHaveTextContent("a@b.com");
     });
+    expect(mockPush).toHaveBeenCalledWith("/dashboard");
+    expect(mockRefresh).toHaveBeenCalled();
+  });
+
+  it("login failure: handles network error", async () => {
+    const user = userEvent.setup();
+
+    global.fetch = jest.fn().mockRejectedValue(new Error("Network error"));
+
+    render(
+      <AuthProvider initialUser={null}>
+        <TestConsumer />
+      </AuthProvider>
+    );
+
+    await user.click(screen.getByRole("button", { name: /login/i }));
+
+    // User should remain null
+    expect(screen.getByTestId("user-email")).toHaveTextContent("null");
+  });
+
+  it("login failure: handles server error", async () => {
+    const user = userEvent.setup();
+
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: false,
+      json: async () => ({ message: "Invalid credentials" }),
+    });
+
+    render(
+      <AuthProvider initialUser={null}>
+        <TestConsumer />
+      </AuthProvider>
+    );
+
+    await user.click(screen.getByRole("button", { name: /login/i }));
+
+    expect(screen.getByTestId("user-email")).toHaveTextContent("null");
+  });
+
+  it("logout: clears user and navigates", async () => {
+    const user = userEvent.setup();
+
+    global.fetch = jest.fn().mockResolvedValue({ ok: true });
+
+    render(
+      <AuthProvider initialUser={{ id: "1", email: "test@test.com", name: "Test" }}>
+        <TestConsumer />
+      </AuthProvider>
+    );
+
+    await user.click(screen.getByRole("button", { name: /logout/i }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("user-email")).toHaveTextContent("null");
+    });
+    expect(mockPush).toHaveBeenCalledWith("/login");
+    expect(mockRefresh).toHaveBeenCalled();
   });
 
   it("Proteção: componente que usa useAuth não renderiza sem Provider", () => {
